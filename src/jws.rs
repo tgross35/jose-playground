@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use serde::Serialize;
 use types::*;
 
 use crate::sign_alg::{MaybeSigned, SigningAlg, Unsigned};
@@ -31,7 +32,12 @@ impl<T, Fmt: JwsFormat> Jws<T, Fmt> {
     }
 }
 
-impl<T, Phd, Sign: MaybeSigned> Jws<T, Compact<Phd, Sign>> {
+impl<T, Phd, Sign: MaybeSigned> Jws<T, Compact<Phd, Sign>>
+where
+    T: Serialize,
+    Phd: Serialize,
+
+ {
     /// Generate the signature
     pub fn signature<Alg: SigningAlg>(&self, key: impl AsRef<[u8]>) -> Result<Alg::SigData, Alg::Error> {
         let mut mac = Alg::mac_new_from_slice(key.as_ref()).unwrap();
@@ -45,7 +51,10 @@ impl<T, Phd, Sign: MaybeSigned> Jws<T, Compact<Phd, Sign>> {
     }
 }
 
-impl<T, Phd, Uhd, Sign: MaybeSigned> Jws<T, Flat<Phd, Uhd, Sign>> {
+impl<T, Phd, Uhd, Sign: MaybeSigned> Jws<T, Flat<Phd, Uhd, Sign>>
+where
+    T: Serialize
+ {
     /// Generate the signature
     pub fn signature<Alg: SigningAlg>(&self, key: impl AsRef<[u8]>) -> Result<Alg::SigData, Alg::Error> {
         todo!()
